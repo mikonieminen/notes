@@ -1,0 +1,13 @@
+{
+    "name": "Notes",
+    "description": "Notes app build for offline use, keep in sycn with Firefox Sync.",
+    "launch_path": "/index.html",
+    "icons": {
+        "128": "text-editor-symbolic.svg"
+    },
+    "developer": {
+        "name": "Miko Nieminen",
+        "url": "http://"
+    },
+    "default_locale": "en"
+}

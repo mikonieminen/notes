@@ -1,0 +1,35 @@
+body {
+    margin: 0 2.5%;
+    width: 90%;
+}
+
+#note_list {
+    margin: 2.5%;
+    height: 95%;
+    width: 27.5%;
+    overflow: hidden;
+    border-radius: 0.5rem 0.5rem 0 0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-shadow: 0.5rem 0.5rem 0.5rem #c3c3c3;
+}
+
+#note_list > div.list_header {
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+#note_view {
+    height: 95%;
+    width: 65%;
+    margin: 2.5% 2.5% 2.5% 0;
+    border-radius: 0.5rem 0.5rem 0 0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-shadow: 0.5rem 0.5rem 0.5rem #c3c3c3;
+}
+
+#note_view div.note_header {
+    border-radius: 0.5rem 0.5rem 0 0;
+}

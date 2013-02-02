@@ -1,0 +1,74 @@
+body {
+    font-family: sans-serif;
+}
+
+body > input {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+}
+
+#note_list {
+    border: 1px solid black;
+    background-color: #f2f2f2;
+}
+
+#note_list > div:first-child {
+    background-color: black;
+    color: #f2f2f2;
+    font-weight: bold;
+}
+
+#note_list > div:first-child > span {
+    width: 100%;
+    text-align: center;
+}
+
+#note_list > div:first-child input {
+    position: absolute;
+    right: 0.2rem;
+    top: 0.1rem;
+}
+
+#note_list > div:last-child {
+    background-color: #f2f2f2;
+}
+
+#note_list ul > li {
+    border-top: 1px solid black;
+    list-style: none;
+}
+
+#note_list ul > li:first-child {
+    border-top: 0;
+}
+
+#note_list div.note_list_item > span.title {
+    font-size: 1rem;
+    text-align: left;
+    display: block;
+    width: 100%;
+}
+
+#note_list div.note_list_item > span.timestamp {
+    font-size: 0.5rem;
+    text-align: right;
+    display: block;
+    width: 100%;
+    text-align: right;
+}
+
+#note_view {
+    border: 1px solid black;
+}
+
+#note_view > div:first-child {
+    text-align: center;
+    background-color: black;
+    color: #f2f2f2;
+    font-weight: bold;
+}
+
+#note_view > div:last-child {
+    background-color: #f2f2f2;
+}

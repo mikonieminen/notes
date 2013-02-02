@@ -1,0 +1,11 @@
+{
+    "name": "static-file-server",
+    "description": "This is an simple node service that just serves files from this folder and can be used for serving simple web apps.",
+    "version": "0.0.1",
+    "author": "Miko Nieminen <miko.nieminen@iki.fi>",
+    "keywords": ["static server"],
+    "dependencies": {
+        "connect": "latest"
+    },
+    "main": "./server.js"
+}
