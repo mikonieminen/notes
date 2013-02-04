@@ -27,6 +27,10 @@ function Note(notesProvider, initData) {
 
     this.subscribers = {};
 
+    // Use Object.defineProperty to hide actual data.
+    // When values are changed, notify NotesProvider so that
+    // note will be updated in the database.
+
     Object.defineProperty(this, '_memento', {
         configurable: false,
         enumerable: false,
@@ -152,11 +156,15 @@ NotesProvider.prototype.init = function(callback) {
     var self = this;
     var store;
     var index;
+    var cursorRequest;
+
     store = self.app.db.transaction(["notes"]).objectStore("notes");
     index = store.index("modified");
-    var cursorRequest = index.openCursor();
-    cursorRequest.onsuccess = function(e) {
-        console.log("NotesProvider.init, cursorRequest.onsuccess");
+
+    cursorRequest = index.openCursor();
+
+    cursorRequest.addEventListener("success", function(e) {
+        console.log("NotesProvider.init, cursorRequest success");
         var result = e.target.result;
         if(!!result == false) {
             callback();
@@ -165,70 +173,80 @@ NotesProvider.prototype.init = function(callback) {
             self.app.viewModel.addNote(new Note(self, result.value));
             result.continue();
         }
-    };
-    cursorRequest.onerror = function(err) {
-        console.log("NotesProvider.init, cursorRequest.onerror");
+    }, false);
+
+    cursorRequest.addEventListener("error", function(err) {
+        console.log("NotesProvider.init, cursorRequest error");
         callback(err);
-    };
-    cursorRequest.onabort = function(reason) {
-        console.log("NotesProvider.init, cursorRequest.onabort");
+    }, false);
+
+    cursorRequest.addEventListener("abort", function(reason) {
+        console.log("NotesProvider.init, cursorRequest abort");
         callback(reason);
-    };
+    }, false);
 };
 
 NotesProvider.prototype.addNote = function(note) {
     var self = this;
     var store;
     var request;
-    var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
-    var transaction = this.app.db.transaction(["notes"], IDBTransaction.READ_WRITE);
-    transaction.oncomplete = function(event) {
-        console.log("NotesProvider.addNote, done");
-    };
-    transaction.onerror = function(event) {
-        alert("Creating new not failed.");
-        console.log("NotesProvider.addNote, error");
+    var IDBTransaction = window.IDBTransaction;
+    var transaction = this.app.db.transaction(["notes"], "readwrite");
+
+    transaction.addEventLister("complete", function(event) {
+        console.log("NotesProvider.addNote, transaction complete.");
+    }, false);
+
+    transaction.addEventListener("error", function(event) {
+        console.log("NotesProvider.addNote, transaction error");
         console.log(event);
-    };
+        alert("Creating new note failed.");
+    }, false);
+
     store = transaction.objectStore("notes");
+
     request = store.add(note._memento);
-    request.onsuccess = function(event) {
+
+    request.addEventListener("success", function(event) {
+        console.log("NotesProvider.addNote, succeed.");
         console.log("Add new note to top of the list and make it current.");
         self.app.viewModel.notes.splice(0, 0, note);
         self.app.viewModel.currentNote(note);
-    };
+    }, false);
 };
 
 NotesProvider.prototype.saveNote = function(note) {
     var self = this;
     var store;
     var request;
-    var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+    var IDBTransaction = window.IDBTransaction;
+    var transaction;
 
     note._saving = true;
 
-    var transaction = this.app.db.transaction(["notes"], IDBTransaction.READ_WRITE);
-    transaction.oncomplete = function(event) {
+    transaction = this.app.db.transaction(["notes"], "readwrite");
+    transaction.addEventListener("complete", function(event) {
         console.log("NotesProvider.saveNote, transaction completed.");
         note._saving = false;
         if (note._dirty) {
-            console.log("NotesProvider.saveNote, save again since note was updated in the middle of save.");
+            console.log("NotesProvider.saveNote, re-save since note was updated during the operation.");
             self.saveNote(note);
         }
-    };
-    transaction.onerror = function(event) {
-        alert("Failed to save note.");
+    }, false);
+    transaction.addEventListener("error", function(event) {
         console.log("NotesProvider.saveNote, error: ", event);
-    };
+        alert("Failed to save note.");
+    }, false);
 
     store = transaction.objectStore("notes");
 
     note._dirty = false;
 
     request = store.put(note._memento);
-    request.onsuccess = function(event) {
+
+    request.addEventListener("success", function(event) {
         console.log("NotesProvider.saveNote, saved.");
-    };
+    }, false);
 };
 
 NotesProvider.prototype.updated = function(note) {

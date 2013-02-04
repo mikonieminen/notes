@@ -79,18 +79,18 @@ App.prototype.init = function() {
 
     request.addEventListener("error", function(event) {
         alert("Got error.");
-    });
+    }, false);
 
     request.addEventListener("upgradeneeded", function(event) {
         console.log("IDB onupgradeneeded");
         self.db = request.result;
         self.notesProvider.initStorage(event.currentTarget.transaction);
-    });
+    }, false);
 
-    request.onsuccess = function(event) {
+    request.addEventListener("success", function(event) {
         console.log("IDB onsuccess");
 
-        self.db = request.result;
+        self.db = event.target.result;
 
         ko.applyBindings(self.viewModel);
         self.notesProvider.init(function(err) {
@@ -100,7 +100,7 @@ App.prototype.init = function() {
                 alert("Error while initialization.");
             }
         });
-    };
+    }, false);
 };
 
 App.prototype.ready = function() {
