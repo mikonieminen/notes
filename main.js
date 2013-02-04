@@ -66,8 +66,7 @@ function App() {
     this.notesProvider;
     this.viewModel;
 
-    this.idb = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
-    this.webkit = window.webkitIndexedDB ? true : false;
+    this.idb = window.indexedDB || window.webkitIndexedDB;
     this.notesProvider = new NotesProvider(this);
     this.viewModel = new ViewModel(this.notesProvider);
 }
@@ -76,12 +75,7 @@ App.prototype.init = function() {
     var self = this;
     var request;
 
-    console.log("App init");
-    if (this.webkit) {
-        request = this.idb.open("Notes");
-    } else {
-        request = this.idb.open("Notes", this.version);
-    }
+    request = this.idb.open("Notes", this.version);
 
     request.addEventListener("error", function(event) {
         alert("Got error.");
@@ -93,61 +87,20 @@ App.prototype.init = function() {
         self.notesProvider.initStorage(event.currentTarget.transaction);
     });
 
-    if (this.webkit) {
-        request.onsuccess = function(event) {
-            console.log("IDB onsuccess, webkit version");
+    request.onsuccess = function(event) {
+        console.log("IDB onsuccess");
 
-            self.db = request.result;
+        self.db = request.result;
 
-            if (self.version != self.db.version) {
-                var setVrequest = self.db.setVersion(self.version);
-
-                // onsuccess is the only place we can create Object Stores
-                setVrequest.onfailure = function(err) {
-                    console.log("Error updating database.");
-                };
-                setVrequest.onsuccess = function(e) {
-                    console.log("IDB upgrade needed, webkit version");
-                    self.db = request.result;
-                    self.notesProvider.initStorage(e.currentTarget.transaction);
-                    e.target.transaction.oncomplete = function() {
-                        ko.applyBindings(self.viewModel);
-                        self.notesProvider.init(function(err) {
-                            if (!err) {
-                                self.ready();
-                            } else {
-                                alert("Error while initialization.");
-                            }
-                        });
-                    };
-                };
+        ko.applyBindings(self.viewModel);
+        self.notesProvider.init(function(err) {
+            if (!err) {
+                self.ready();
             } else {
-                ko.applyBindings(self.viewModel);
-                self.notesProvider.init(function(err) {
-                    if (!err) {
-                        self.ready();
-                    } else {
-                        alert("Error while initialization.");
-                    }
-                });
+                alert("Error while initialization.");
             }
-        };
-    } else {
-        request.onsuccess = function(event) {
-            console.log("IDB onsuccess");
-
-            self.db = request.result;
-
-            ko.applyBindings(self.viewModel);
-            self.notesProvider.init(function(err) {
-                if (!err) {
-                    self.ready();
-                } else {
-                    alert("Error while initialization.");
-                }
-            });
-        };
-    }
+        });
+    };
 };
 
 App.prototype.ready = function() {
